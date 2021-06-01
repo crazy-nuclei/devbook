@@ -4,8 +4,8 @@ const router = express.Router();
 const auth = require('../../middleware/auth');
 const Profile = require('../../models/Profile');
 const User = require('../../models/User');
-
-
+const config = require('config');
+const axios = require('axios');
 
 // @route  /api/profile/me 
 // @desc   GET current user profile
@@ -285,4 +285,47 @@ router.delete('/education/:edu_id', auth, async (req, res) => {
         res.status(500).send('Server Error');
     }
 });
+
+// @route  GET /api/profile/github/:username
+// @desc   get user repos from github
+// @access public
+
+router.get('/github/:username', async (req, res) => {
+
+
+    try {
+        const options = {
+            url: `https://api.github.com/users/${req.params.username}/repos?per_page=5&sort=created:asc&client_id=${config.get('githubClientID')}&client_secret=${config.get('clientSecret')}`,
+            method: 'GET',
+        };
+        let op = await axios(options);
+
+
+        if (op.status == 200) {
+            return res.json(op.data);
+        }
+
+        res.status(404).json({ msg: "No github profile found" });
+
+    } catch (err) {
+        console.error(err);
+        if (err.message == "Request failed with status code 404") {
+            return res.status(404).json({ msg: "No github profile found" });
+        }
+        res.status(500).send('Server Error');
+    }
+})
+
+
+
+
 module.exports = router;
+
+
+
+
+
+
+
+
+

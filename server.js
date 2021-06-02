@@ -18,4 +18,5 @@ app.use('/api/posts', require('./routes/api/posts'));
 
 const PORT = process.env.PORT || 5000;
 
+//listen on port
 app.listen(PORT, () => console.log(`listening on port ${PORT}`));

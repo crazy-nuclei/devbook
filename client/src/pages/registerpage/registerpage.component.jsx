@@ -1,10 +1,14 @@
 import React, { Fragment, useState } from 'react';
 import { Link } from 'react-router-dom';
+import { connect } from 'react-redux';
+import { v4 as uuid } from 'uuid';
 
+import { setAlert, removeAlert } from '../../redux/reducers/alert/alert.actions';
+import Alert from '../../components/alert/alert.component';
 import './registerpage.styles.css';
 
 
-const RegisterPage = () => {
+const RegisterPage = ({ setAlert }) => {
 
     const [formData, setFormData] = useState({
         name: '',
@@ -23,7 +27,8 @@ const RegisterPage = () => {
         e.preventDefault();
 
         if (password !== password2) {
-            return console.log('Passwords do not match')
+            const id = uuid();
+            setAlert({ msg: 'Passwords do not match', alertType: 'danger', id });
         }
 
         console.log(formData);
@@ -31,6 +36,7 @@ const RegisterPage = () => {
 
     return <Fragment>
         <section className="container">
+            <Alert />
             <h1 className="large text-primary">Sign Up</h1>
             <p className="lead"><i className="fas fa-user"></i> Create Your Account</p>
             <form className="form" onSubmit={e => onSubmit(e)}>
@@ -73,4 +79,11 @@ const RegisterPage = () => {
     </Fragment>
 }
 
-export default RegisterPage;
+const mapDispatchToProps = dispatch => ({
+    setAlert: alert => {
+        dispatch(setAlert(alert));
+        setTimeout(() => dispatch(removeAlert(alert.id)), 3000);
+    }
+})
+
+export default connect(null, mapDispatchToProps)(RegisterPage);

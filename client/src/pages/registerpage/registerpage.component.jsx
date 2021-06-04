@@ -1,14 +1,14 @@
 import React, { Fragment, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, Redirect } from 'react-router-dom';
 import { connect } from 'react-redux';
-import { v4 as uuid } from 'uuid';
 
-import { setAlert, removeAlert } from '../../redux/reducers/alert/alert.actions';
+import { setAlert } from '../../redux/reducers/alert/alert.actions';
+import { register } from '../../redux/reducers/auth/auth.actions';
 import Alert from '../../components/alert/alert.component';
 import './registerpage.styles.css';
 
 
-const RegisterPage = ({ setAlert }) => {
+const RegisterPage = ({ setAlert, register, isAuthenticated }) => {
 
     const [formData, setFormData] = useState({
         name: '',
@@ -27,11 +27,14 @@ const RegisterPage = ({ setAlert }) => {
         e.preventDefault();
 
         if (password !== password2) {
-            const id = uuid();
-            setAlert({ msg: 'Passwords do not match', alertType: 'danger', id });
+            setAlert({ msg: 'Passwords do not match', alertType: 'danger' });
         }
 
-        console.log(formData);
+        register({ name, email, password });
+    }
+
+    if (isAuthenticated) {
+        return <Redirect to='/dashboard' />
     }
 
     return <Fragment>
@@ -79,11 +82,14 @@ const RegisterPage = ({ setAlert }) => {
     </Fragment>
 }
 
-const mapDispatchToProps = dispatch => ({
-    setAlert: alert => {
-        dispatch(setAlert(alert));
-        setTimeout(() => dispatch(removeAlert(alert.id)), 3000);
-    }
+const mapDispatchToProps = {
+    setAlert,
+    register
+}
+
+const mapstateToProps = state => ({
+    isAuthenticated: state.auth.isAuthenticated
 })
 
-export default connect(null, mapDispatchToProps)(RegisterPage);
+
+export default connect(mapstateToProps, mapDispatchToProps)(RegisterPage);
